@@ -29,6 +29,10 @@ Main window:
 
 ![Main Window](docs/mainwindow.png)
 
+![Main Window](docs/2.png)
+
+![Main Window](docs/3.png)
+
 
 📖 Usage
 **Important:** Switch must be connected in MTP Mode before running the program.
