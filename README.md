@@ -26,10 +26,11 @@ A Windows desktop tool to synchronize save files of **Hollow Knight Silksong**  
   - Requires [DBI](https://github.com/rashevskyv/dbi) (homebrew app) to expose game saves over MTP
 
 Main window:
-![Main Window](docs/images/mainwindow.png)
+![Main Window](docs/mainwindow.png)
 
 
 📖 Usage
+**Important:** Switch must be connected in MTP Mode before running the program.
 
 1. Select the PC save folder
   Saves are stored in the following path on Windows:

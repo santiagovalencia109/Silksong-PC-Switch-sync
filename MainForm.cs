@@ -9,8 +9,7 @@ namespace SwitchFileSync
 {
     public partial class MainForm : Form
     {
-        private string backupPcPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "backups_pc");
-        private string backupSwitchPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "backups_switch");
+       
 
         private MediaDevice? switchDevice;
         private AppConfig config;
@@ -20,8 +19,7 @@ namespace SwitchFileSync
         public MainForm()
         {
             InitializeComponent();
-            Directory.CreateDirectory(backupPcPath);
-            Directory.CreateDirectory(backupSwitchPath);
+            
 
             this.MaximumSize = new Size(540, 480);
             this.MinimumSize = new Size(540, 480);
@@ -90,98 +88,114 @@ namespace SwitchFileSync
 
         private void btnSendToSwitch_Click(object sender, EventArgs e)
         {
-            if (switchDevice == null || !switchDevice.IsConnected)
+            try
             {
-                MessageBox.Show("Switch is not connected. Please connect it via USB.",
-                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            string pcPath = txtPcPath.Text;
-            string switchPath = txtSwitchPath.Text;
-            if (!Directory.Exists(pcPath))
-            {
-                MessageBox.Show("Invalid PC path.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            if (switchPlaytime.Value == pcPlaytime.Value) { 
-                MessageBox.Show("The saves are already synchronized.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            if (pcPlaytime.HasValue && switchPlaytime.HasValue && pcPlaytime.Value < switchPlaytime.Value)
-            {
-                var result = MessageBox.Show(
-                    "Warning: You are about to overwrite the Switch save with an older PC save.\nDo you want to continue?",
-                    "Older Save Detected",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Warning);
-
-                if (result == DialogResult.No)
+                if (switchDevice == null || !switchDevice.IsConnected)
+                {
+                    MessageBox.Show("Switch is not connected. Please connect it via USB.",
+                                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
+                }
+
+                string pcPath = txtPcPath.Text;
+                string switchPath = txtSwitchPath.Text;
+                if (!Directory.Exists(pcPath))
+                {
+                    MessageBox.Show("Invalid PC path.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (switchPlaytime.Value == pcPlaytime.Value)
+                {
+                    MessageBox.Show("The saves are already synchronized.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                if (pcPlaytime.HasValue && switchPlaytime.HasValue && pcPlaytime.Value < switchPlaytime.Value)
+                {
+                    var result = MessageBox.Show(
+                        "Warning: You are about to overwrite the Switch save with an older PC save.\nDo you want to continue?",
+                        "Older Save Detected",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning);
+
+                    if (result == DialogResult.No)
+                        return;
+                }
+
+                // 🔹 Backup
+                string backupRoot = CreateBackupRoot();
+                BackupFromPc(pcPath, backupRoot);
+                BackupFromSwitch(switchPath, backupRoot);
+
+                // 🔹 Subir
+                CopyFromPcRecursive(pcPath, switchPath);
+                LoadPlaytimeFromPc(txtPcPath.Text);
+                LoadPlaytimeFromSwitch(txtSwitchPath.Text);
+
+                MessageBox.Show("Files uploaded to Switch (backup created).", "Success");
             }
-
-            // 🔹 Backup
-            string backupRoot = CreateBackupRoot();
-            BackupFromPc(pcPath, backupRoot);
-            BackupFromSwitch(switchPath, backupRoot);
-
-            // 🔹 Subir
-            CopyFromPcRecursive(pcPath, switchPath);
-            LoadPlaytimeFromPc(txtPcPath.Text);
-            LoadPlaytimeFromSwitch(txtSwitchPath.Text);
-
-            MessageBox.Show("Files uploaded to Switch (backup created).", "Success");
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error during upload: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
 
         private void btnSendToPc_Click(object sender, EventArgs e)
         {
-            if (switchDevice == null || !switchDevice.IsConnected)
+            try
             {
-                MessageBox.Show("Switch is not connected. Please connect it via USB.",
-                                "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            string pcPath = txtPcPath.Text;
-            string switchPath = txtSwitchPath.Text;
-            if (!Directory.Exists(pcPath))
-            {
-                MessageBox.Show("Invalid PC path.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            if (switchPlaytime.Value == pcPlaytime.Value) { 
-                MessageBox.Show("The saves are already synchronized.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-            
-            // 🔹 Validación de playtime
-            if (pcPlaytime.HasValue && switchPlaytime.HasValue && switchPlaytime.Value < pcPlaytime.Value)
-            {
-                var result = MessageBox.Show(
-                    "Warning: You are about to overwrite the PC save with an older Switch save.\nDo you want to continue?",
-                    "Older Save Detected",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Warning);
-
-                if (result == DialogResult.No)
+                if (switchDevice == null || !switchDevice.IsConnected)
+                {
+                    MessageBox.Show("Switch is not connected. Please connect it via USB.",
+                                    "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
+                }
+
+                string pcPath = txtPcPath.Text;
+                string switchPath = txtSwitchPath.Text;
+                if (!Directory.Exists(pcPath))
+                {
+                    MessageBox.Show("Invalid PC path.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (switchPlaytime.Value == pcPlaytime.Value)
+                {
+                    MessageBox.Show("The saves are already synchronized.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+
+                // 🔹 Validación de playtime
+                if (pcPlaytime.HasValue && switchPlaytime.HasValue && switchPlaytime.Value < pcPlaytime.Value)
+                {
+                    var result = MessageBox.Show(
+                        "Warning: You are about to overwrite the PC save with an older Switch save.\nDo you want to continue?",
+                        "Older Save Detected",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Warning);
+
+                    if (result == DialogResult.No)
+                        return;
+                }
+
+                // 🔹 Backup
+                string backupRoot = CreateBackupRoot();
+                BackupFromPc(pcPath, backupRoot);
+                BackupFromSwitch(switchPath, backupRoot);
+
+                // 🔹 Descargar
+                CopyFromSwitchRecursive(switchPath, pcPath);
+                LoadPlaytimeFromPc(txtPcPath.Text);
+                LoadPlaytimeFromSwitch(txtSwitchPath.Text);
+
+                MessageBox.Show("Files downloaded to PC (backup created).", "Success");
+             }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error during upload: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-            // 🔹 Backup
-            string backupRoot = CreateBackupRoot();
-            BackupFromPc(pcPath, backupRoot);
-            BackupFromSwitch(switchPath, backupRoot);
-
-            // 🔹 Descargar
-            CopyFromSwitchRecursive(switchPath, pcPath);
-            LoadPlaytimeFromPc(txtPcPath.Text);
-            LoadPlaytimeFromSwitch(txtSwitchPath.Text);
-
-            MessageBox.Show("Files downloaded to PC (backup created).", "Success");
         }
 
 
