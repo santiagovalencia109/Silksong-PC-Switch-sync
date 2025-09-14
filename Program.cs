@@ -15,6 +15,11 @@ static class Program
 
         try
         {
+              // MUST be called before creating any forms/controls
+            Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+            
             ApplicationConfiguration.Initialize();
             Application.Run(new MainForm());
         }

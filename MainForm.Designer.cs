@@ -15,6 +15,8 @@
         private System.Windows.Forms.Label lblPlaytimePc;
         private System.Windows.Forms.Label lblPlaytimeSwitch;
 
+        private System.Windows.Forms.ProgressBar progressBar;
+
         protected override void Dispose(bool disposing)
         {
             if (disposing && (components != null))
@@ -40,14 +42,14 @@
 
             // lblPlaytimePc
             this.lblPlaytimePc = new System.Windows.Forms.Label();
-            this.lblPlaytimePc.Location = new System.Drawing.Point(20, 400);
+            this.lblPlaytimePc.Location = new System.Drawing.Point(20, 425);
             this.lblPlaytimePc.Size = new System.Drawing.Size(250, 23);
             this.lblPlaytimePc.Text = "Playtime PC: N/A";
             this.Controls.Add(this.lblPlaytimePc);
 
             // lblPlaytimeSwitch
             this.lblPlaytimeSwitch = new System.Windows.Forms.Label();
-            this.lblPlaytimeSwitch.Location = new System.Drawing.Point(280, 400);
+            this.lblPlaytimeSwitch.Location = new System.Drawing.Point(280, 425);
             this.lblPlaytimeSwitch.Size = new System.Drawing.Size(250, 23);
             this.lblPlaytimeSwitch.Text = "Playtime Switch: N/A";
             this.Controls.Add(this.lblPlaytimeSwitch);
@@ -116,12 +118,22 @@
             // 
             // treeSwitchExplorer
             // 
-            this.treeSwitchExplorer.Location = new System.Drawing.Point(20, 190);
+            this.treeSwitchExplorer.Location = new System.Drawing.Point(20, 220);
             this.treeSwitchExplorer.Name = "treeSwitchExplorer";
             this.treeSwitchExplorer.Size = new System.Drawing.Size(485, 200);
             this.treeSwitchExplorer.TabIndex = 7;
             this.treeSwitchExplorer.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.treeSwitchExplorer_AfterSelect);
             this.treeSwitchExplorer.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.treeSwitchExplorer_BeforeExpand);
+            // 
+            // progressBar
+            // 
+            this.progressBar = new System.Windows.Forms.ProgressBar();
+            this.progressBar.Location = new System.Drawing.Point(20, 185);
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(430, 20);
+            this.progressBar.TabIndex = 8;
+            this.Controls.Add(this.progressBar);
+
             // 
             // MainForm
             // 
